@@ -9,17 +9,36 @@ import (
 	"unicode"
 )
 
+type Status int
+
+const (
+	Correct Status = iota
+	SemiCorrect
+	Incorrect
+)
+
+type Square struct {
+	Letter string
+	Status Status
+}
+
+func NewSquare() Square {
+	return Square{
+		Letter: " ",
+		Status: Incorrect,
+	}
+}
+
 func main() {
 	words := load_words()
 	answer := pickWord(words)
 
-	board := [6][5]string{
-		{" ", " ", " ", " ", " "},
-		{" ", " ", " ", " ", " "},
-		{" ", " ", " ", " ", " "},
-		{" ", " ", " ", " ", " "},
-		{" ", " ", " ", " ", " "},
-		{" ", " ", " ", " ", " "},
+	board := [6][5]Square{}
+
+	for i := range board {
+		for j := range board[i] {
+			board[i][j] = NewSquare()
+		}
 	}
 
 	print_board(board)
@@ -46,30 +65,25 @@ func main() {
 
 		term.Restore(int(os.Stdin.Fd()), oldState)
 
-		if err != nil {
-			fmt.Println("Error reading from stdin:", err)
-			break
-		}
-
 		var r rune = rune(b[0])
 
-		if r == 127 {
+		if r == 127 { // Backspace Key
 			if current_letter > 0 {
 				fmt.Println(current_letter)
-				board[current_word-1][current_letter-1] = " "
+				board[current_word-1][current_letter-1].Letter = " "
 				if current_letter != 1 {
 					current_letter--
 				}
 			}
-		} else if unicode.IsLetter(r) {
-			board[current_word-1][current_letter-1] = string(r)
+		} else if unicode.IsLetter(r) { // Any Letter
+			board[current_word-1][current_letter-1].Letter = string(r)
 			if current_letter != 5 {
 				current_letter++
 			}
-		} else if r == 27 {
+		} else if r == 27 { // Escape Key
 			break
-		} else if r == 13 {
-			if board[current_word-1][4] != " " {
+		} else if r == 13 { // Enter Key
+			if board[current_word-1][4].Letter != " " {
 				current_letter = 1
 				current_word++
 			}
@@ -88,11 +102,11 @@ func main() {
 	fmt.Println(answer)
 }
 
-func print_board(board [6][5]string) {
+func print_board(board [6][5]Square) {
 	for _, row := range board {
 		fmt.Println("+-------+-------+-------+-------+-------+")
 		fmt.Println("|       |       |       |       |       |")
-		fmt.Printf("|   %v   |   %v   |   %v   |   %v   |   %v   |\n", row[0], row[1], row[2], row[3], row[4])
+		fmt.Printf("|   %v   |   %v   |   %v   |   %v   |   %v   |\n", row[0].Letter, row[1].Letter, row[2].Letter, row[3].Letter, row[4].Letter)
 		fmt.Println("|       |       |       |       |       |")
 	}
 	fmt.Println("+-------+-------+-------+-------+-------+")
