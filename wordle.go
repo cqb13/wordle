@@ -83,8 +83,23 @@ func main() {
 			break
 		} else if r == 13 { // Enter Key
 			if board[current_word-1][4].Letter != " " {
+				// make sure the word is in the word list
 				board[current_word-1] = check_accuracy(board[current_word-1], answer)
+				player_win := check_player_win(board[current_word-1])
+				if player_win {
+					clear_terminal()
+					print_board(board)
+					fmt.Println("You got it!")
+					break
+				}
 				current_letter = 1
+				if current_word == 6 {
+					clear_terminal()
+					print_board(board)
+					fmt.Println("You lost!")
+					fmt.Printf("The word was %v\n", answer)
+					break
+				}
 				current_word++
 			}
 		}
@@ -98,8 +113,16 @@ func main() {
 			return
 		}
 	}
+}
 
-	fmt.Println(answer)
+func check_player_win(row [5]Square) bool {
+	for _, square := range row {
+		if square.Status != Correct {
+			return false
+		}
+	}
+
+	return true
 }
 
 func check_accuracy(row [5]Square, answer string) [5]Square {
