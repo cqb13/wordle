@@ -3,10 +3,10 @@ package main
 import (
 	"fmt"
 	"golang.org/x/term"
-	"math/rand"
 	"os"
 	"slices"
 	"strings"
+	"time"
 	"unicode"
 )
 
@@ -197,9 +197,15 @@ func load_words() []string {
 }
 
 func pickWord(lines []string) string {
-	randomNumber := rand.Intn(len(lines))
+	startDate := time.Date(2024, 11, 13, 0, 0, 0, 0, time.UTC)
+	currentDate := time.Now()
+	duration := currentDate.Sub(startDate)
 
-	return lines[randomNumber]
+	days := int(duration.Hours()/24 + 0.5)
+	if days > len(lines) {
+		panic("Out of words!")
+	}
+	return lines[days]
 }
 
 func check(e error) {
